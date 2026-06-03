@@ -1,0 +1,5 @@
+fastapi
+mangum
+pydantic
+python-multipart
+uvicorn
