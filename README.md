@@ -55,3 +55,6 @@ curl -X POST https://jsonschema-validator.vercel.app/validate \
 - **number/integer**: minimum, maximum
 - **array**: minItems, maxItems, items
 - **object**: properties, required, additionalProperties
+
+## Postman
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://raw.githubusercontent.com/BT-Builds/jsonschema-validator/main/postman_collection.json)
