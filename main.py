@@ -47,6 +47,7 @@ class ValidationResponse(BaseModel):
     errors: list = []
     suggestions: list = []
 
+
 def validate_schema(data: Any, schema: dict) -> tuple[bool, list, list]:
     """Pure Python JSON Schema draft-07 validation"""
     errors = []
@@ -137,16 +138,20 @@ def validate_schema(data: Any, schema: dict) -> tuple[bool, list, list]:
     
     return len(errors) == 0, errors, suggestions
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
+
 @app.post("/validate", response_model=ValidationResponse)
 def validate(request: ValidationRequest, api_key: str = Depends(get_api_key)):
+    """Validate a single item against a JSON schema"""
     if not isinstance(request.data, (dict, list, str, int, float, bool, type(None))):
         raise HTTPException(status_code=400, detail="Invalid JSON data")
     valid, errors, suggestions = validate_schema(request.data, request.schema)
     return ValidationResponse(valid=valid, errors=errors, suggestions=suggestions)
+
 
 @app.post("/validate/file")
 async def validate_file(request: ValidationRequest, api_key: str = Depends(get_api_key)):
@@ -155,9 +160,95 @@ async def validate_file(request: ValidationRequest, api_key: str = Depends(get_a
     return {
         "valid": valid,
         "error_count": len(errors),
-        "errors": errors[:10],  # Limit to first 10 errors
+        "errors": errors[:10],
         "passed": valid
     }
+
+
+@app.post("/bulk/validate")
+def bulk_validate(request: dict, api_key: str = Depends(get_api_key)):
+    """Validate multiple items against a JSON schema (up to 1000 items)"""
+    items = request.get("items", [])
+    if not isinstance(items, list):
+        raise HTTPException(status_code=400, detail="items must be an array")
+    if len(items) > 1000:
+        raise HTTPException(status_code=400, detail="Maximum 1000 items per request")
+    
+    schema = request.get("schema")
+    if not schema or not isinstance(schema, dict):
+        raise HTTPException(status_code=400, detail="schema is required")
+    
+    results = []
+    successful = 0
+    
+    for item in items:
+        if not isinstance(item, (dict, list, str, int, float, bool, type(None))):
+            results.append({
+                "input": str(item)[:100],
+                "output": None,
+                "error": "Invalid JSON data"
+            })
+        else:
+            valid, errors, suggestions = validate_schema(item, schema)
+            if valid:
+                successful += 1
+            results.append({
+                "input": item,
+                "output": {"valid": valid, "errors": errors, "suggestions": suggestions},
+                "error": None
+            })
+    
+    return {
+        "results": results,
+        "total": len(items),
+        "successful": successful
+    }
+
+
+@app.post("/bulk/validate/file")
+def bulk_validate_file(request: dict, api_key: str = Depends(get_api_key)):
+    """Bulk validate optimized for file-based workflows"""
+    items = request.get("items", [])
+    if not isinstance(items, list):
+        raise HTTPException(status_code=400, detail="items must be an array")
+    if len(items) > 1000:
+        raise HTTPException(status_code=400, detail="Maximum 1000 items per request")
+    
+    schema = request.get("schema")
+    if not schema or not isinstance(schema, dict):
+        raise HTTPException(status_code=400, detail="schema is required")
+    
+    results = []
+    successful = 0
+    
+    for item in items:
+        if not isinstance(item, (dict, list, str, int, float, bool, type(None))):
+            results.append({
+                "input": str(item)[:100],
+                "output": None,
+                "error": "Invalid JSON data"
+            })
+        else:
+            valid, errors, _ = validate_schema(item, schema)
+            if valid:
+                successful += 1
+            results.append({
+                "input": item,
+                "output": {
+                    "valid": valid,
+                    "error_count": len(errors),
+                    "errors": errors[:10],
+                    "passed": valid
+                },
+                "error": None
+            })
+    
+    return {
+        "results": results,
+        "total": len(items),
+        "successful": successful
+    }
+
 
 @app.get("/schema/types")
 def get_schema_types():  # No auth - just docs
