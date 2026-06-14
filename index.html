@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>API | BT Builds</title>
-<meta name="description" content="BT Builds API">
+<title>JSON Schema Validator API | BT Builds</title>
+<meta name="description" content="A BT Builds API">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:#0d1117;color:#c9d1d9;font-family:-apple-system,Segoe UI,Helvetica,sans-serif;line-height:1.6}
@@ -38,8 +38,8 @@
 </head>
 <body>
 <div class="container">
-  <h1>API</h1>
-  <p class="tagline">BT Builds API</p>
+  <h1>JSON Schema Validator API</h1>
+  <p class="tagline">A BT Builds API</p>
   <div class="badges">
     <span class="badge">REST API</span>
     <span class="badge">JSON</span>
@@ -50,18 +50,21 @@
   <h2>Try It Now</h2>
   <div class="bt-tryit">
     <label>Endpoint</label>
-    <input id="bt-endpoint" type="text" value="https://jsonschema-validator-bt-builds-projects.vercel.app/health" readonly>
+    <input id="bt-endpoint" type="text" value="https://jsonschema-validator.vercel.app/validate" readonly>
     <label>Request body (JSON)</label>
-    <textarea id="bt-body" rows="4">{}</textarea>
+    <textarea id="bt-body" rows="4">{
+  "data": "",
+  "schema": 0
+}</textarea>
     <button class="btn" onclick="btTryIt()">Send Request</button>
     <pre id="bt-response" style="display:none"></pre>
   </div>
 
   <h2>Quick Start</h2>
-  <pre><code>curl -X POST https://jsonschema-validator-bt-builds-projects.vercel.app/health \
+  <pre><code>curl -X POST https://jsonschema-validator.vercel.app/validate \
   -H "X-API-Key: free-demo-key" \
   -H "Content-Type: application/json" \
-  -d '{}'</code></pre>
+  -d '{"data": "", "schema": 0}'</code></pre>
 
   <h2>Pricing</h2>
   <div class="pricing">
@@ -71,8 +74,8 @@
   </div>
 
   <h2>Documentation</h2>
-  <p><a href="https://jsonschema-validator-bt-builds-projects.vercel.app/docs">Swagger UI →</a> &nbsp;|&nbsp;
-  <a href="https://jsonschema-validator-bt-builds-projects.vercel.app/openapi.json">OpenAPI Spec →</a> &nbsp;|&nbsp;
+  <p><a href="https://jsonschema-validator.vercel.app/docs">Swagger UI →</a> &nbsp;|&nbsp;
+  <a href="https://jsonschema-validator.vercel.app/openapi.json">OpenAPI Spec →</a> &nbsp;|&nbsp;
   <a href="https://github.com/BT-Builds/jsonschema-validator">GitHub →</a> &nbsp;|&nbsp;
   <a href="https://run.pstmn.io/button.svg">Postman →</a></p>
 
